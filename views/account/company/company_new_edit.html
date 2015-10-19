@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="company-name">Company Name</label>
+                    <input type="text" class="form-control" id="company-name" {% if company %}value="{{ company.name }}"
+                           {% else %}placeholder="Enter Company Name"{% endif %}>
+                </div>
+                <input type="button" class="btn btn-primary" onclick="submitCompany()" value="Create New Company">
+            </div>
+        </div>
+    </div>
+
+    {% include "includes/spinner.html" %}
+    <script type="text/javascript">
+        var submitCompany = function () {
+            showSpinner();
+            $.ajax({
+                type: {% if company %}"PUT"{% else %}"POST"{% endif %},
+                url: "/account/company_{% if company %}edit/{{ company.key.id() }}{% else %}create/{% endif %}",
+                data: "name=" + $("#company-name").val(),
+                dataType: "JSON",
+                success: function (response) {
+                    hideSpinner();
+                    if (response.success) {
+                        window.location.href = response.goto_url;
+                    } else {
+                        $("#error-message").html(response.error_message);
+                        $("#error-alert").removeClass("hidden");
+                    }
+                }
+            });
+        };
+    </script>
+{% endblock %}
